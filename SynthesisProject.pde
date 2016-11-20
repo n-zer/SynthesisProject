@@ -42,8 +42,8 @@ final int RIGHTPAD = 200;
 void setup()
 {
   // Initialize the drawing window
-  size( 1600, 800);          // 2 pixels wide per frequency bin
-  //fullScreen();
+  //size( 1600, 800);          // 2 pixels wide per frequency bin
+  fullScreen();
   legendFont = createFont("Helvetica", 16);  // This works for standard fonts
   scaleFont = createFont("Helvetica", 10);  // This works for standard fonts
   controlFont = createFont("Helvetica",32);
@@ -145,7 +145,8 @@ void draw()
   if(mouseAffect==0){
     float x = map(activeInst.modF,0.1,3000.0,0,width);
     float y = map(activeInst.modAmp,6000.0,0.1,0,height);
-    fill(255,0,0);
+    if(activeInst.fmEnabled) fill(255,0,0);
+    else fill(150);
     stroke(0);
     //textFont(legendFont);
     //ellipse(x,y,30,30);
@@ -155,7 +156,8 @@ void draw()
   else if(mouseAffect==1){
     float x = map(activeInst.ampF,0.1,3000.0,0,width);
     float y = map(activeInst.ampAmp,1.0,0,0,height);
-    fill(0,255,0);
+    if(activeInst.ampEnabled) fill(0,255,0);
+    else fill(150);
     stroke(0);
     textFont(controlFont);
     text("AM",x,y);
