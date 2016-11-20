@@ -27,6 +27,9 @@ class FMInst
   float zOff = random(0.0, 2.0);
   float zIncrement = 0.005; 
   
+  boolean ampEnabled = false;
+  boolean fmEnabled = false;
+  
   AudioOutput out;
 
   // Constructor takes modulating frequency, amplitude and offset (carrier f)
@@ -57,10 +60,10 @@ class FMInst
     mod.offset.setLastValue( modOff );
 
     // Patch modulator output to frequency of the carrier to control carrier's freq
-    mod.patch( car.frequency );
+    //mod.patch( car.frequency );
     
     amp = new Oscil(ampF, ampAmp, Waves.SINE);
-    amp.patch(car.amplitude);
+    //amp.patch(car.amplitude);
 
     // and patch carrier to the output to hear it (and draw the spectrum)
     car.patch( out );
@@ -135,16 +138,18 @@ class FMInst
     // index = modAmp / modF
   }
   
-  void toggleAMod(boolean bool){
-    if(!bool) {
+  void toggleAMod(){
+    ampEnabled = !ampEnabled;
+    if(!ampEnabled) {
       amp.unpatch(car);
       car.setAmplitude(.6);
     }
     else amp.patch(car.amplitude);
   }
   
-  void toggleFMod(boolean bool){
-    if(!bool) {
+  void toggleFMod(){
+    fmEnabled = !fmEnabled;
+    if(!fmEnabled) {
       mod.unpatch(car);
       car.setFrequency(modOff);
       //car.setAmplitude(.6);

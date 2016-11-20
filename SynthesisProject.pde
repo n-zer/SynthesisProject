@@ -20,6 +20,7 @@ AudioOutput outL;
 AudioOutput outR;
 FMInst fm1;        // Make an FM Instrument object
 FMInst fm2;
+FMInst activeInst;
 FFT   fft;         // To draw the spectra
 FFT fft2;
 PFont legendFont;  // To show the FM parameters in real time
@@ -30,10 +31,9 @@ float modF;        // Frequency for the modulating oscillator
 float modAmp;      // Amplitude for the modulating oscillator
 float modOff;      // Modulator offset, really the carrier frequency
 boolean shiftOn = false;
-int mouseAffect = 0;
+int mouseAffect = 2;
 boolean keyToggle = false;
-boolean amp = true;
-boolean fm = true;
+boolean instrument = false;
 
 final int RIGHTPAD = 200;
 
@@ -58,6 +58,7 @@ void setup()
   fm2 = new FMInst(modF, modAmp, modOff, 1, outR);
   fft = new FFT( outL.bufferSize(), outL.sampleRate() );
   fft2 = new FFT( outR.bufferSize(), outR.sampleRate() );
+  activeInst = fm1;
 }
 
 // draw is run many times
@@ -76,31 +77,44 @@ void draw()
   }
   else if(keyPressed && key == 'a' && !keyToggle){
     keyToggle = true;
-    amp = !amp;
-    fm1.toggleAMod(amp);
+    activeInst.toggleAMod();
   }
   else if(keyPressed && key == 'f' && !keyToggle){
     keyToggle = true;
-    fm = !fm;
-    fm1.toggleFMod(fm);
+    activeInst.toggleFMod();
+  }
+  else if(keyPressed && key == 'o' && !keyToggle){
+    keyToggle = true;
+    instrument = !instrument;
+    activeInst = (instrument)?fm2 : fm1;
   }
   else if(!keyPressed)
     keyToggle = false;
 
   // erase the window to black
   background( 0 );
+  stroke(0);
+  if(!instrument)
+  {
+    fill(0,0,10);
+    rect(0,0,width-RIGHTPAD,height/2);
+  }
+  else {
+    fill(10,0,0);
+    rect(0,height/2,width-RIGHTPAD,height/2);
+  }
   // draw using a white stroke
   stroke( 255 );
 
   textFont(legendFont);             // Set up and print the FM parameters
   fill(255);
-  text("Carrier f: " + ((fm) ? fm1.modOff : fm1.carF), width-RIGHTPAD, 20);  // Mod offset really carrier f
-  text("Mod freq: " + fm1.modF, width-RIGHTPAD, 40);
-  text("Mod amp: " + fm1.modAmp, width-RIGHTPAD, 60);
-  text("C:M Ratio: " + (fm1.modOff / fm1.modF), width-RIGHTPAD, 80);  
-  text("Mod Index: " + (fm1.modAmp / fm1.modF), width-RIGHTPAD, 100);
-  text("Amp freq: " + fm1.ampF, width-RIGHTPAD, 120);
-  text("Amp amp: " + fm1.ampAmp, width-RIGHTPAD, 140);
+  text("Carrier f: " + ((activeInst.fmEnabled) ? activeInst.modOff : activeInst.carF), width-RIGHTPAD, 20);  // Mod offset really carrier f
+  text("Mod freq: " + activeInst.modF, width-RIGHTPAD, 40);
+  text("Mod amp: " + activeInst.modAmp, width-RIGHTPAD, 60);
+  text("C:M Ratio: " + (activeInst.modOff / activeInst.modF), width-RIGHTPAD, 80);  
+  text("Mod Index: " + (activeInst.modAmp / activeInst.modF), width-RIGHTPAD, 100);
+  text("Amp freq: " + activeInst.ampF, width-RIGHTPAD, 120);
+  text("Amp amp: " + activeInst.ampAmp, width-RIGHTPAD, 140);
   text("mouseX: Freq", width-RIGHTPAD, 170);
   text("mouseY: Depth", width-RIGHTPAD, 190);
   //text("m: Move Params", width-RIGHTPAD, 270);
@@ -111,8 +125,9 @@ void draw()
     text("mouse params: AM",width-RIGHTPAD,230);
   else if(mouseAffect ==2)
     text("mouse params: Carrier",width-RIGHTPAD,230);
-  text("f: "+((fm)?"disable":"enable") + " FM", width-RIGHTPAD, 270);
-  text("a: "+((amp)?"disable":"enable") + " AM", width-RIGHTPAD, 290);
+  text("f: "+((activeInst.fmEnabled)?"disable":"enable") + " FM", width-RIGHTPAD, 270);
+  text("a: "+((activeInst.ampEnabled)?"disable":"enable") + " AM", width-RIGHTPAD, 290);
+  text("o: switch instrument",width-RIGHTPAD, 330);
 
   // draw the waveforms
   
@@ -121,6 +136,29 @@ void draw()
 
   drawFFT(0, height/2,fft, outL);  
   drawFFT(height/2, height/2,fft2, outR); 
+  
+  if(mouseAffect==0){
+    float x = map(activeInst.modF,0.1,3000.0,0,width);
+    float y = map(activeInst.modAmp,6000.0,0.1,0,height);
+    fill(255,0,0);
+    stroke(0);
+    ellipse(x,y,30,30);
+  }
+  else if(mouseAffect==1){
+    float x = map(activeInst.ampF,0.1,3000.0,0,width);
+    float y = map(activeInst.ampAmp,1.0,0,0,height);
+    fill(0,255,0);
+    stroke(0);
+    ellipse(x,y,30,30);
+  }
+  else if(mouseAffect==2){
+    float x = map(activeInst.carF,0.1,3000.0,0,width);
+    //float y = map(activeInst.modAmp,6000.0,0.1,0,height);
+    //fill(50,0,0);
+    //ellipse(x,y,30,30);
+    stroke(255);
+    line(x,0,x,height);
+  }
 }
 
 void drawWaveform(float y, float h, AudioOutput out){
@@ -176,16 +214,16 @@ void mouseDragged()
 
   // Moved above stuff into FMInst to modify modulator freq and amplitude
   if(mouseAffect == 0){
-    fm1.setModF( map( mouseX, 0, width, 0.1, 3000.0 ) );
-    fm1.setModAmp( map( mouseY, 0, height, 6000, 0.1 ) );
+    activeInst.setModF( map( mouseX, 0, width, 0.1, 3000.0 ) );
+    activeInst.setModAmp( map( mouseY, 0, height, 6000, 0.1 ) );
   }
   else if (mouseAffect ==1){
-    fm1.setAmpF( map( mouseX, 0, width, 0.1, 3000.0 ) );
-    fm1.setAmpAmp( map( mouseY, 0, height, 1.0, 0 ) );
+    activeInst.setAmpF( map( mouseX, 0, width, 0.1, 3000.0 ) );
+    activeInst.setAmpAmp( map( mouseY, 0, height, 1.0, 0 ) );
   }
   else if(mouseAffect==2){
-    fm1.setModOff(map( mouseX, 0, width, 0.1, 3000.0 ));
-    fm1.setCarF(map( mouseX, 0, width, 0.1, 3000.0 ));
+    activeInst.setModOff(map( mouseX, 0, width, 0.1, 3000.0 ));
+    activeInst.setCarF(map( mouseX, 0, width, 0.1, 3000.0 ));
   }
   //else
   //  fm1.setCarF(map( mouseX, 0, width, 0.1, 3000.0 ));
