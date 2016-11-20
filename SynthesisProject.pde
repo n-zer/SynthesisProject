@@ -25,6 +25,7 @@ FFT   fft;         // To draw the spectra
 FFT fft2;
 PFont legendFont;  // To show the FM parameters in real time
 PFont scaleFont;
+PFont controlFont;
 
 float carF;        // Not really used
 float modF;        // Frequency for the modulating oscillator
@@ -45,6 +46,7 @@ void setup()
   fullScreen();
   legendFont = createFont("Helvetica", 16);  // This works for standard fonts
   scaleFont = createFont("Helvetica", 10);  // This works for standard fonts
+  controlFont = createFont("Helvetica",32);
 
   // Initialize the minim and out objects
   minim = new Minim( this );
@@ -106,6 +108,7 @@ void draw()
   // draw using a white stroke
   stroke( 255 );
 
+  textAlign(LEFT,BOTTOM);
   textFont(legendFont);             // Set up and print the FM parameters
   fill(255);
   text("Carrier f: " + ((activeInst.fmEnabled) ? activeInst.modOff : activeInst.carF), width-RIGHTPAD, 20);  // Mod offset really carrier f
@@ -137,27 +140,37 @@ void draw()
   drawFFT(0, height/2,fft, outL);  
   drawFFT(height/2, height/2,fft2, outR); 
   
+  textFont(controlFont);
+  textAlign(CENTER,CENTER);
   if(mouseAffect==0){
     float x = map(activeInst.modF,0.1,3000.0,0,width);
     float y = map(activeInst.modAmp,6000.0,0.1,0,height);
     fill(255,0,0);
     stroke(0);
-    ellipse(x,y,30,30);
+    //ellipse(x,y,30,30);
+    text("FM",x,y);
   }
   else if(mouseAffect==1){
     float x = map(activeInst.ampF,0.1,3000.0,0,width);
     float y = map(activeInst.ampAmp,1.0,0,0,height);
     fill(0,255,0);
     stroke(0);
-    ellipse(x,y,30,30);
+    text("AM",x,y);
+    //ellipse(x,y,30,30);
   }
   else if(mouseAffect==2){
     float x = map(activeInst.carF,0.1,3000.0,0,width);
     //float y = map(activeInst.modAmp,6000.0,0.1,0,height);
     //fill(50,0,0);
     //ellipse(x,y,30,30);
+    fill(255);
     stroke(255);
+    if(x>width-RIGHTPAD)
+      textAlign(RIGHT,CENTER);
+    else
+      textAlign(LEFT,CENTER);  
     line(x,0,x,height);
+    text("Carrier freq",x,height/2);
   }
 }
 
