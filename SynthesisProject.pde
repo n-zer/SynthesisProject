@@ -42,8 +42,8 @@ final int RIGHTPAD = 200;
 void setup()
 {
   // Initialize the drawing window
-  //size( 1600, 800);          // 2 pixels wide per frequency bin
-  fullScreen();
+  size( 1600, 800);          // 2 pixels wide per frequency bin
+  //fullScreen();
   legendFont = createFont("Helvetica", 16);  // This works for standard fonts
   scaleFont = createFont("Helvetica", 10);  // This works for standard fonts
   controlFont = createFont("Helvetica",32);
@@ -99,11 +99,11 @@ void draw()
   if(!instrument)
   {
     fill(0,0,10);
-    rect(0,0,width-RIGHTPAD,height/2);
+    rect(0,0,width-RIGHTPAD-20,height/2);
   }
   else {
     fill(10,0,0);
-    rect(0,height/2,width-RIGHTPAD,height/2);
+    rect(0,height/2,width-RIGHTPAD-20,height/2);
   }
   // draw using a white stroke
   stroke( 255 );
@@ -140,14 +140,16 @@ void draw()
   drawFFT(0, height/2,fft, outL);  
   drawFFT(height/2, height/2,fft2, outR); 
   
-  textFont(controlFont);
+  
   textAlign(CENTER,CENTER);
   if(mouseAffect==0){
     float x = map(activeInst.modF,0.1,3000.0,0,width);
     float y = map(activeInst.modAmp,6000.0,0.1,0,height);
     fill(255,0,0);
     stroke(0);
+    //textFont(legendFont);
     //ellipse(x,y,30,30);
+    textFont(controlFont);
     text("FM",x,y);
   }
   else if(mouseAffect==1){
@@ -155,6 +157,7 @@ void draw()
     float y = map(activeInst.ampAmp,1.0,0,0,height);
     fill(0,255,0);
     stroke(0);
+    textFont(controlFont);
     text("AM",x,y);
     //ellipse(x,y,30,30);
   }
@@ -170,6 +173,7 @@ void draw()
     else
       textAlign(LEFT,CENTER);  
     line(x,0,x,height);
+    textFont(controlFont);
     text("Carrier freq",x,height/2);
   }
 }
