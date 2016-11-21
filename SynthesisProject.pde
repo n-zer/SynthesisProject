@@ -18,9 +18,9 @@ import ddf.minim.analysis.*;  // Needed for the FFT
 Minim minim;
 AudioOutput outL;
 AudioOutput outR;
-FMInst fm1;        // Make an FM Instrument object
-FMInst fm2;
-FMInst activeInst;
+Inst inst1;        // Make an FM Instrument object
+Inst inst2;
+Inst activeInst;
 FFT   fft;         // To draw the spectra
 FFT fft2;
 PFont legendFont;  // To show the FM parameters in real time
@@ -56,11 +56,11 @@ void setup()
   modF = 300.0;      // Initial values will be overridden by user in real time
   modAmp = 2000.0;
   modOff = 300.0;    // Modulator offset is really the carrier freauency
-  fm1 = new FMInst(modF, modAmp, modOff, -1, outL);  // Create the actual FM object
-  fm2 = new FMInst(modF, modAmp, modOff, 1, outR);
+  inst1 = new Inst(modF, modAmp, modOff, -1, outL);  // Create the actual FM object
+  inst2 = new Inst(modF, modAmp, modOff, 1, outR);
   fft = new FFT( outL.bufferSize(), outL.sampleRate() );
   fft2 = new FFT( outR.bufferSize(), outR.sampleRate() );
-  activeInst = fm1;
+  activeInst = inst1;
 }
 
 // draw is run many times
@@ -71,7 +71,7 @@ void draw()
   
 
   //if (keyPressed && key == 'm')  // Make Perlin-random movements in carF, modF, modA
-   // fm1.move();
+   // inst1.move();
     
   if(keyPressed && key == 'm' && !keyToggle){
     keyToggle = true;
@@ -88,7 +88,7 @@ void draw()
   else if(keyPressed && key == 'o' && !keyToggle){
     keyToggle = true;
     instrument = !instrument;
-    activeInst = (instrument)?fm2 : fm1;
+    activeInst = (instrument)?inst2 : inst1;
   }
   else if(!keyPressed)
     keyToggle = false;
@@ -233,8 +233,8 @@ void mouseDragged()
   //modAmp = ;
   //float c2M = map( mouseX, 0, width, 0.01, 20.0 );
 
-  //fm1.setCarF( carF );
-  //fm1.setModOff( modOff );
+  //inst1.setCarF( carF );
+  //inst1.setModOff( modOff );
 
   // Moved above stuff into FMInst to modify modulator freq and amplitude
   if(mouseAffect == 0){
@@ -250,9 +250,9 @@ void mouseDragged()
     activeInst.setCarF(map( mouseX, 0, width, 0.1, 3000.0 ));
   }
   //else
-  //  fm1.setCarF(map( mouseX, 0, width, 0.1, 3000.0 ));
+  //  inst1.setCarF(map( mouseX, 0, width, 0.1, 3000.0 ));
 
-  //fm1.setC2M( c2M );
+  //inst1.setC2M( c2M );
 }
 
 void keyPressed()
@@ -261,7 +261,7 @@ void keyPressed()
     shiftOn = true;
   if (key == 'q')
   {
-    fm1.stop();
+    inst1.stop();
     //out.pauseNotes();
     exit();
   }

@@ -1,10 +1,4 @@
-/* FMInst - FM Instrument class by Al Biles
- from a Processing example by Damien Di Fede
- Intended to become a portable FM instrument for all ocassions
- but used here just to display how FM works
- */
-
-class FMInst
+class Inst
 {
   // Carrier Oscillator
   Oscil car;
@@ -33,7 +27,7 @@ class FMInst
   AudioOutput out;
 
   // Constructor takes modulating frequency, amplitude and offset (carrier f)
-  FMInst(float mF, float mA, float mO, float pan, AudioOutput _out)
+  Inst(float mF, float mA, float mO, float pan, AudioOutput _out)
   {
     out = _out;
     carF = 300;      // Doesn't matter, replaced by modulator output
@@ -41,8 +35,8 @@ class FMInst
     modF = mF;
     modAmp = mA;
     modOff = mO;     // Really the carrier frequency
-    ampF = 10;
-    ampAmp = 1;
+    ampF = 300;
+    ampAmp = .8;
 
     // Make the Oscil we will hear (carrier).
     // Arguments are frequency, amplitude, and waveform
