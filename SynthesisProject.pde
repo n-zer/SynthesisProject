@@ -107,35 +107,37 @@ void draw()
   }
   // draw using a white stroke
   stroke( 255 );
-
+  
+  float center = height/2;
   textAlign(LEFT,BOTTOM);
   textFont(legendFont);             // Set up and print the FM parameters
   fill(255);
-  text("Carrier f: " + ((activeInst.fmEnabled) ? activeInst.modOff : activeInst.carF), width-RIGHTPAD, 20);  // Mod offset really carrier f
-  text("Mod freq: " + activeInst.modF, width-RIGHTPAD, 40);
-  text("Mod amp: " + activeInst.modAmp, width-RIGHTPAD, 60);
-  text("C:M Ratio: " + (activeInst.modOff / activeInst.modF), width-RIGHTPAD, 80);  
-  text("Mod Index: " + (activeInst.modAmp / activeInst.modF), width-RIGHTPAD, 100);
-  text("Amp freq: " + activeInst.ampF, width-RIGHTPAD, 120);
-  text("Amp amp: " + activeInst.ampAmp, width-RIGHTPAD, 140);
-  text("mouseX: Freq", width-RIGHTPAD, 170);
-  text("mouseY: Depth", width-RIGHTPAD, 190);
+  text("carrier freq: " + ((activeInst.fmEnabled) ? activeInst.modOff : activeInst.carF), width-RIGHTPAD, 20);  // Mod offset really carrier f
+  text("fm freq: " + activeInst.modF, width-RIGHTPAD, 60);
+  text("fm amp: " + activeInst.modAmp, width-RIGHTPAD, 80);
+  text("m:m Ratio: " + (activeInst.modF / activeInst.modOff), width-RIGHTPAD, 100);  
+  //text("Mod Index: " + (activeInst.modAmp / activeInst.modF), width-RIGHTPAD, 100);
+  text("am freq: " + activeInst.ampF, width-RIGHTPAD, 140);
+  text("am amp: " + activeInst.ampAmp, width-RIGHTPAD, 160);
+  text("a:c Ratio: "+activeInst.ampF/activeInst.carF,width-RIGHTPAD, 180);
+  text("mouseX: Freq", width-RIGHTPAD, 220);
+  text("mouseY: Depth", width-RIGHTPAD, 240);
   //text("m: Move Params", width-RIGHTPAD, 270);
-  text("m: Toggle mouse params",width-RIGHTPAD, 210);
+  text("m: switch mouse parameter",width-RIGHTPAD, 260);
   if(mouseAffect ==0)
-    text("mouse params: FM",width-RIGHTPAD,230);
+    text("parameter: FM",width-RIGHTPAD,280);
   else if(mouseAffect ==1)
-    text("mouse params: AM",width-RIGHTPAD,230);
+    text("parameter: AM",width-RIGHTPAD,280);
   else if(mouseAffect ==2)
-    text("mouse params: Carrier",width-RIGHTPAD,230);
-  text("f: "+((activeInst.fmEnabled)?"disable":"enable") + " FM", width-RIGHTPAD, 270);
-  text("a: "+((activeInst.ampEnabled)?"disable":"enable") + " AM", width-RIGHTPAD, 290);
-  text("o: switch instrument",width-RIGHTPAD, 330);
+    text("parameter: Carrier",width-RIGHTPAD,280);
+  text("f: "+((activeInst.fmEnabled)?"disable":"enable") + " FM", width-RIGHTPAD, 320);
+  text("a: "+((activeInst.ampEnabled)?"disable":"enable") + " AM", width-RIGHTPAD, 340);
+  text("o: switch instrument",width-RIGHTPAD, 380);
 
   // draw the waveforms
   
-  drawWaveform(height/8,height/8,outL);
-  drawWaveform(5*height/8,height/8,outR);
+  drawWaveform(height/4,height/4,outL);
+  drawWaveform(3*height/4,height/4,outR);
 
   drawFFT(0, height/2,fft, outL);  
   drawFFT(height/2, height/2,fft2, outR); 
@@ -176,7 +178,7 @@ void draw()
       textAlign(LEFT,CENTER);  
     line(x,0,x,height);
     textFont(controlFont);
-    text("Carrier freq",x,height/2);
+    text("Carrier freq",x,5.2*height/10);
   }
 }
 
@@ -195,14 +197,17 @@ void drawWaveform(float y, float h, AudioOutput out){
 
 void drawFFT(float y, float h, FFT fourier, AudioOutput out){
   // Code for mapping fft to real-time spectrum
-  fourier.forward(out.left);     // Display the spectra, mono => just need left
+  fourier.forward(out.mix);     // Display the spectra, mono => just need left
   textFont(scaleFont);       // Set up the font for the scale
   stroke(255);
-  for (int i = 0; i < fourier.specSize (); i++)
+  for (int i = 0; i < (width - RIGHTPAD-20)/2; i++)
   {
-    // draw the line for frequency band i, scaling it by 3 so we can see it a bit better
-    line(i*2, y + h*0.85, i*2, y + h*0.85 - fourier.getBand(i));
-    if (i%16 == 0)
+    if(i%2==0)
+      // draw the line for frequency band i, scaling it by 3 so we can see it a bit better
+      line(i*2, y + h, i*2, y + h - fourier.getBand(i/2));
+    else
+      line(i*2, y + h, i*2, y + h - (fourier.getBand((i-1)/2) + fourier.getBand((i+1)/2))/2);
+    /*if (i%16 == 0)
     {
       if (i%32 == 0)
       {
@@ -213,7 +218,7 @@ void drawFFT(float y, float h, FFT fourier, AudioOutput out){
         line (i*2, y+h*0.85, i*2, y+h*0.90 + 10);
         text(int(fourier.indexToFreq(i)), i*2, y+h*0.90+19);
       }
-    }
+    }*/
   }
 }
 
