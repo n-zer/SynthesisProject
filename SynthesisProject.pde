@@ -12,6 +12,7 @@
 import ddf.minim.*;
 import ddf.minim.ugens.*;     // Needed for the oscillators
 import ddf.minim.analysis.*;  // Needed for the FFT
+import java.text.DecimalFormat;
 
 // Create all of the variables that will need to be accessed in
 // more than one methods (setup(), draw(), stop()).
@@ -36,7 +37,10 @@ int mouseAffect = 2;
 boolean keyToggle = false;
 boolean instrument = false;
 
-final int RIGHTPAD = 200;
+DecimalFormat freqFormat = new DecimalFormat("#####");
+DecimalFormat ratioFormat = new DecimalFormat("####.###");
+
+final int RIGHTPAD = 220;
 
 // setup is run once at the beginning
 void setup()
@@ -112,27 +116,27 @@ void draw()
   textAlign(LEFT,BOTTOM);
   textFont(legendFont);             // Set up and print the FM parameters
   fill(255);
-  text("carrier freq: " + ((activeInst.fmEnabled) ? activeInst.modOff : activeInst.carF), width-RIGHTPAD, 20);  // Mod offset really carrier f
-  text("fm freq: " + activeInst.modF, width-RIGHTPAD, 60);
-  text("fm amp: " + activeInst.modAmp, width-RIGHTPAD, 80);
-  text("m:m Ratio: " + (activeInst.modF / activeInst.modOff), width-RIGHTPAD, 100);  
+  text("carrier freq: " + freqFormat.format((activeInst.fmEnabled) ? activeInst.modOff : activeInst.carF)+" hz", width-RIGHTPAD, center-180);  // Mod offset really carrier f
+  text("fm freq: " + freqFormat.format(activeInst.modF)+" hz", width-RIGHTPAD, center-140);
+  text("fm amp: " + freqFormat.format(activeInst.modAmp)+" hz", width-RIGHTPAD, center-120);
+  text("f:c Ratio: " + ratioFormat.format(activeInst.modF / activeInst.modOff), width-RIGHTPAD, center-100);  
   //text("Mod Index: " + (activeInst.modAmp / activeInst.modF), width-RIGHTPAD, 100);
-  text("am freq: " + activeInst.ampF, width-RIGHTPAD, 140);
-  text("am amp: " + activeInst.ampAmp, width-RIGHTPAD, 160);
-  text("a:c Ratio: "+activeInst.ampF/activeInst.carF,width-RIGHTPAD, 180);
-  text("mouseX: Freq", width-RIGHTPAD, 220);
-  text("mouseY: Depth", width-RIGHTPAD, 240);
+  text("am freq: " + freqFormat.format(activeInst.ampF)+" hz", width-RIGHTPAD, center-60);
+  text("am amp: " + freqFormat.format(activeInst.ampAmp*100)+"%", width-RIGHTPAD, center-40);
+  text("a:c Ratio: "+ratioFormat.format(activeInst.ampF/activeInst.carF),width-RIGHTPAD, center-20);
+  text("mouseX: freq", width-RIGHTPAD, center+20);
+  text("mouseY: "+((mouseAffect == 0 || mouseAffect == 1) ? "amp" : "n/a"), width-RIGHTPAD, center+40);
   //text("m: Move Params", width-RIGHTPAD, 270);
-  text("m: switch mouse parameter",width-RIGHTPAD, 260);
+  text("m: switch mouse parameter",width-RIGHTPAD, center+60);
   if(mouseAffect ==0)
-    text("parameter: FM",width-RIGHTPAD,280);
+    text("parameter: FM",width-RIGHTPAD,center+80);
   else if(mouseAffect ==1)
-    text("parameter: AM",width-RIGHTPAD,280);
+    text("parameter: AM",width-RIGHTPAD,center+80);
   else if(mouseAffect ==2)
-    text("parameter: Carrier",width-RIGHTPAD,280);
-  text("f: "+((activeInst.fmEnabled)?"disable":"enable") + " FM", width-RIGHTPAD, 320);
-  text("a: "+((activeInst.ampEnabled)?"disable":"enable") + " AM", width-RIGHTPAD, 340);
-  text("o: switch instrument",width-RIGHTPAD, 380);
+    text("parameter: Carrier",width-RIGHTPAD,center+80);
+  text("f: "+((activeInst.fmEnabled)?"disable":"enable") + " FM", width-RIGHTPAD, center+120);
+  text("a: "+((activeInst.ampEnabled)?"disable":"enable") + " AM", width-RIGHTPAD, center+140);
+  text("o: switch instrument",width-RIGHTPAD, center+180);
 
   // draw the waveforms
   
@@ -253,6 +257,11 @@ void mouseDragged()
   //  inst1.setCarF(map( mouseX, 0, width, 0.1, 3000.0 ));
 
   //inst1.setC2M( c2M );
+}
+
+float roundFigures(float val, int places){
+  float exp = (float)Math.pow(10,places);
+  return round(val*exp)/exp;
 }
 
 void keyPressed()
